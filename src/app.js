@@ -9,6 +9,17 @@ const init = async () => {
     host: '0.0.0.0', // 'localhost' or '0.0.0.0', // Allow Google App Engine to use any incoming requests
   });
 
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: () => {
+      return {
+        status: '✅ API is running',
+        message: 'Welcome to CUNNY Content API',
+      };
+    },
+  });
+  
   server.route(learningMaterialsRoutes);
 
   await server.start();
@@ -19,5 +30,6 @@ process.on('unhandledRejection', (err) => {
   console.error(err);
   process.exit(1);
 });
+
 
 init();
