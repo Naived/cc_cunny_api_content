@@ -1,0 +1,24 @@
+# app.yaml
+runtime: #defines runtime environment for the app. Example: nodejs20
+
+env_variables:
+  DB_CONNECTION: #defines the database connection string. Example: mysql
+  DB_TYPE: #defines the database type. Example: mysql or postgres
+  DB_PORT: 5432 #defines the database port. Example: 5432 for postgres and 3306 for mysql
+  DB_HOST: #defines the database host. Example: 34.101.32.24
+  DB_USER: #defines the database user. Example: root
+  DB_NAME: #defines the database name. Example: your_db_name
+  DB_PASSWORD: #defines the database password. Example: your_db_pass
+  DB_SOCKET_PATH: #defines the database socket path. Example: /cloudsql/your-project-id:region:instance-id
+
+instance_class: #defines the instance class is Optional, depending on your needs (F2 is a flexible instance)
+
+handlers:
+  - url: /static  # Serve static files (if you have any)
+    static_dir: static/
+
+  - url: /  # Serve the app entry point (index.html, etc.)
+    static_files: index.html  # Specify any entry point HTML if required
+    upload: index.html  # Make sure the file is uploaded
+  - url: /.*  # Catch-all handler for API routes
+    script: auto  # Automatically handles the Node.js app entry point

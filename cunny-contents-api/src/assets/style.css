@@ -1,0 +1,48 @@
+        /* Animation for logo */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .logo-animate {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes colorChange {
+            0% {
+                color: red;
+            }
+
+            50% {
+                color: green;
+            }
+
+            100% {
+                color: red;
+            }
+        }
+
+        .color-change {
+            animation: colorChange 4s infinite;
+        }
+
+        @layer utilities {
+            .text-outline {
+                text-shadow:
+                    -0.8px -0.8px 0 white,
+                    /* Top-left outline */
+                    0.8px -0.8px 0 white,
+                    /* Top-right outline */
+                    -0.8px 0.8px 0 white,
+                    /* Bottom-left outline */
+                    0.8px 1px 0 white;
+                /* Bottom-right outline */
+            }
+        }

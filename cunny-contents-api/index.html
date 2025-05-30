@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cunny Content API for Learning Materials">
+    <title>Cunny APIs Docs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="https://cdn.dribbble.com/users/603800/screenshots/4569474/dribbble-code.gif"
+        type="image/x-icon">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css" integrity="sha512-9xKTRVabjVeZmc+GUW8GgSmcREDunMM+Dt/GrzchfN8tkwHizc5RP4Ok/MXFFy5rIjJjzhndFScTceq5e6GvVQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+        integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="src/assets/style.css">
+    <script src="src/assets/tailwind.config.js"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen font-roboto">
+
+    <!-- Drawer for Mobile -->
+    <div id="drawer"
+        class="fixed inset-y-0 left-0 w-64 bg-gray-800 bg-opacity-60 backdrop-blur-lg text-white transform -translate-x-full transition-transform duration-300 z-50 sm:translate-x-0 sm:static sm:w-64 sm:fixed">
+        <div class="p-4">
+            <h2 class="text-2xl font-bold font-funnel italic">API Docs</h2>
+        </div>
+        <nav class="mt-4">
+            <ul>
+                <li class="mb-2">
+                    <h1 class="px-4 py-2 text-red-600 text-3xl  italic ">
+                        <i class="fa-brands fa-connectdevelop text-xl-3 text-white"></i> <span
+                            class="text-outline font-bold">Cunny</span>
+                    </h1>
+                    <h6 class="px-4 mt-1 mb-2 text-lg"><span class="text-green-600 font-semibold"><i class="fa-solid fa-circle-dot"></i> EndPoint</span></h6>
+                    <div class="ml-10 mt-1 mb-2"><i class="fa-solid fa-globe"></i> <a class="hover:underline hover:opacity-60 hover:text-blue-600 text-xs" href="#" onclick="closeDrawerOnMenuClick()">https://ur-url.com</a></div>
+                    <a href="javascript:void(0)"
+                        class="block px-4 py-2 hover:bg-gray-700 hover:underline hover:text-blue-400 hover:italic"
+                        onclick="scrollToWithOffset('#get-all'); closeDrawerOnMenuClick()"><i
+                            class="fa-solid fa-arrow-right"></i> Get All Learning Materials</a>
+                </li>
+                <li>
+                    <a href="javascript:void(0)"
+                        class="block px-4 py-2 hover:bg-gray-700 hover:underline hover:text-blue-400 hover:italic"
+                        onclick="scrollToWithOffset('#get-by-id'); closeDrawerOnMenuClick()"><i
+                            class="fa-solid fa-arrow-right"></i> Get Learning Material by ID</a>
+                            <h6 class="px-4 mt-1 mb-2 text-lg"><span class="text-green-600 font-semibold"><i class="fa-solid fa-circle-dot"></i> EndPoint</span></h6>
+                            <div class="ml-10 mt-1 mb-2"><i class="fa-solid fa-globe"></i> <a class="hover:underline hover:opacity-60 hover:text-blue-600 text-xs" href="#" onclick="closeDrawerOnMenuClick()">https://ur-url.com</a></div>
+                    <a href="javascript:void(0)"
+                            class="block px-4 py-2 hover:bg-gray-700 hover:underline hover:text-blue-400 hover:italic"
+                            onclick="scrollToWithOffset('#prediction'); closeDrawerOnMenuClick()"><i
+                                class="fa-solid fa-arrow-right"></i> Prediction</a>
+                </li>
+            </ul>
+        </nav>
+
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex-grow sm:ml-64">
+        <!-- Header -->
+        <header
+            class="fixed top-0 left-0 right-0 bg-gray-800 bg-opacity-60 backdrop-blur-lg text-white shadow px-4 sm:px-8 py-4 z-10 flex items-center justify-between sm:justify-start sm:ml-64">
+            <!-- Mobile Menu Button -->
+            <button
+                class="block sm:hidden p-2 rounded text-blue-400 hover:bg-gray-700 focus:outline-none focus:ring focus:ring-blue-500"
+                onclick="toggleDrawer()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+
+            <div class="ml-4 sm:ml-0 flex items-center">
+                <!-- Logo with Animation -->
+                <img src="https://cdn.dribbble.com/users/603800/screenshots/4569474/dribbble-code.gif" alt="Logo"
+                    class="w-10 h-10 logo-animate mr-4" />
+                <div class="flex flex-col">
+                    <!-- <h1 class="text-2xl sm:text-4xl font-bold text-red-400 font-funnel">Cunny Contents API</h1> -->
+                    <h1 class="text-2xl sm:text-4xl font-bold font-funnel color-change text-outline">
+                        Cunny APIs
+                    </h1>
+                    <!-- New Paragraph Below the Logo and Heading -->
+                    <p class="text-gray-400 text-sm sm:text-lg font-roboto italic">
+                        Cunny Learning Materials & Prediction API
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <main class="mt-20 sm:mt-24 p-4 sm:p-8">
+            <!-- API 1: Get All Learning Materials -->
+            <section id="get-all" class="mb-28">
+                <h2 class="text-2xl font-semibold text-blue-400 font-funnel"><i class="fa-regular fa-star"></i> Get All
+                    Learning Materials</h2>
+                <p class="text-gray-300 mb-4 font-roboto">
+                    This API endpoint retrieves all learning materials from the database.
+                </p>
+
+                <div class="bg-gray-800 bg-opacity-60 backdrop-blur-lg p-6 rounded shadow">
+                    <h3 class="text-xl font-semibold text-gray-100 font-roboto"><i class="fa-regular fa-circle-dot"></i>
+                        Request</h3>
+                    <p class="text-gray-400 font-semibold">Method: <span
+                            class="text-blue-400 text-lg font-bold">GET</span></p>
+                    <p class="text-gray-400 font-semibold">URL: <span
+                            class="text-blue-400 text-lg font-bold">/learning-materials</span></p>
+
+                    <h3 class="text-xl font-semibold text-gray-100 mt-4 mb-2 font-roboto"><i
+                            class="fa-regular fa-circle-dot"></i> Response Example</h3>
+                    <pre class="bg-gray-900 p-4 rounded overflow-x-auto text-gray-200 font-roboto">
+                        <code>
+                            {
+                                <span class="text-blue-400">"error"</span> : <span class="text-red-400">false</span>,
+                                <span class="text-blue-400">"message"</span> : <span class="text-red-400">"Learning material retrieved successfully."</span>,
+                                <span class="text-blue-400">"learningMaterials"</span> : {
+                                    <span class="text-blue-400">"id"</span> : <span class="text-red-400">1</span>,
+                                    <span class="text-blue-400">"title"</span> : <span class="text-red-400">"Learning Materials Number 1"</span>,
+                                    <span class="text-blue-400">"description"</span> : <span class="text-red-400">"Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum beatae, vitae dolore nobis quidem officiis fuga nostrum soluta odit provident consequuntur ab aliquam, at accusamus aperiam nam? Fuga, officiis ducimus!"</span>, 
+                                    <span class="text-blue-400">"sub_materials"</span> : <span class="text-red-400">[
+                                        [
+                                            "Chapter 1: Example"
+                                        ],
+                                        [
+                                            "Chapter 2: Example"
+                                        ],
+                                        [
+                                            "Chapter 3: Example"
+                                        ]
+                                    ]</span>,
+                                    <span class="text-blue-400">"sub_body_materials"</span> : <span class="text-red-400">[
+                                        [
+                                            "Google Colab adalah platform berbasis cloud yang memungkinkan pengguna untuk menulis dan menjalankan kode Python dalam bentuk notebook Jupyter. Dengan akses gratis ke GPU dan TPU, platform ini mempercepat proses pelatihan model deep learning. Beberapa kelebihannya termasuk gratis, berbasis cloud, mudah dibagikan, dan terintegrasi dengan Google Drive. Cara menggunakannya cukup sederhana, yaitu dengan mengunjungi Google Colab, memulai notebook baru atau membuka notebook yang sudah ada, kemudian memilih "Runtime" dan "Change runtime type" untuk mengaktifkan GPU atau TPU, dan mulai menulis kode Python."
+                                        ],
+                                        [
+                                            "Sementara itu, Visual Studio Code (VSCode) adalah editor teks untuk pengembangan perangkat lunak yang menawarkan berbagai fitur canggih, seperti integrasi dengan Git, debugging, dan plugin untuk Python serta Jupyter notebooks. Kelebihan VSCode antara lain ringan, cepat, mendukung plugin Python Extension, Jupyter, dan TensorFlow Snippets, serta menyediakan fitur debugging dan integrasi dengan Git. Untuk menggunakan VSCode, pertama-tama unduh dan instal dari situs resmi, kemudian pasang Python extension dan Jupyter extension, buka file Python atau Jupyter Notebook, dan mulai menulis kode Python."
+                                        ],
+                                        [
+                                            "Matplotlib adalah library visualisasi data 2D di Python yang sangat fleksibel. Library ini digunakan untuk membuat berbagai jenis grafik dan plot, dari yang sederhana hingga yang kompleks. Kelebihannya terletak pada fleksibilitasnya, memungkinkan pengguna untuk menyesuaikan grafik sesuai kebutuhan. Contoh penggunaannya termasuk membuat plot dan grafik untuk memahami distribusi data.",
+                                            "Seaborn adalah library visualisasi yang dibangun di atas Matplotlib dan menyediakan antarmuka tingkat tinggi untuk membuat grafik statistik. Kelebihan Seaborn adalah lebih mudah digunakan dibandingkan Matplotlib dan menyediakan grafik yang lebih informatif dengan visual yang lebih menarik. Contoh penggunaannya termasuk visualisasi distribusi data dan hubungan antar variabel.",
+                                            "Plotly adalah library visualisasi yang mendukung pembuatan grafik interaktif. Kelebihan utama Plotly adalah kemampuannya untuk menghasilkan grafik yang interaktif dan dapat digunakan di web. Contoh penggunaannya meliputi pembuatan dashboard interaktif dan visualisasi hasil eksperimen, yang memungkinkan interaksi langsung dengan data."
+                                        ] 
+                                    ]</span>,
+                                    <span class="text-blue-400">"learning_image_path"</span> : <span class="text-red-400">"https://storage.googleapis.com/my-bucket-name/images/nodejs-intro.jpg"</span>,
+                                    <span class="text-blue-400">"created_at"</span> : <span class="text-red-400">"2024-01-01T00:00:00Z"</span>,
+                                    <span class="text-blue-400">"updated_at"</span> : <span class="text-red-400">"2024-01-01T00:00:00Z"</span>
+                                }
+                            }
+                        </code>
+                    </pre>
+
+                </div>
+            </section>
+
+            <!-- API 2: Get Learning Material by ID -->
+            <section id="get-by-id" class="mb-28">
+                <h2 class="text-2xl font-semibold text-blue-400 font-funnel"><i class="fa-regular fa-star"></i> Get
+                    Learning Material by ID</h2>
+                <p class="text-gray-300 mb-4 font-roboto">
+                    This API endpoint retrieves a learning material by its unique ID.
+                </p>
+
+                <div class="bg-gray-800 bg-opacity-60 backdrop-blur-lg p-6 rounded shadow">
+                    <h3 class="text-xl font-semibold text-gray-100 font-roboto"><i class="fa-regular fa-circle-dot"></i>
+                        Request</h3>
+                    <p class="text-gray-400 font-semibold">Method : <span
+                            class="text-blue-400 text-lg font-bold">GET</span></p>
+                    <p class="text-gray-400 font-semibold">URL : <span
+                            class="text-blue-400 text-lg font-bold">/learning-materials/{id}</span></p>
+                    <p class="text-gray-400 font-semibold"># Replace <code>{id}</code> with the ID of the learning
+                        material you want to retrieve.</p>
+
+                    <h3 class="text-xl font-semibold text-gray-100 mt-4 mb-2 font-roboto"><i
+                            class="fa-regular fa-circle-dot"></i> Response Example</h3>
+                    <pre class="bg-gray-900 p-4 rounded overflow-x-auto text-gray-200 font-roboto">
+                        <code>
+                            {
+                                <span class="text-blue-400">"error"</span> : <span class="text-red-400">false</span>,
+                                <span class="text-blue-400">"message"</span> : <span class="text-red-400">"Learning material retrieved successfully."</span>,
+                                <span class="text-blue-400">"learningMaterial"</span> : {
+                                    <span class="text-blue-400">"id"</span> : <span class="text-red-400">1</span>,
+                                    <span class="text-blue-400">"title"</span> : <span class="text-red-400">"Learning Materials Number 1"</span>,
+                                    <span class="text-blue-400">"description"</span> : <span class="text-red-400">"Lorem ipsum dolor sit amet consectetur adipisicing elit. Harum beatae, vitae dolore nobis quidem officiis fuga nostrum soluta odit provident consequuntur ab aliquam, at accusamus aperiam nam? Fuga, officiis ducimus!"</span>,
+                                    <span class="text-blue-400">"sub_materials"</span> : <span class="text-red-400">[
+                                        [
+                                            "Chapter 1: Example"
+                                        ],
+                                        [
+                                            "Chapter 2: Example"
+                                        ],
+                                        [
+                                            "Chapter 3: Example"
+                                        ]
+                                    ]</span>,
+                                    <span class="text-blue-400">"sub_body_materials"</span> : <span class="text-red-400">[
+                                        [
+                                            "Google Colab adalah platform berbasis cloud yang memungkinkan pengguna untuk menulis dan menjalankan kode Python dalam bentuk notebook Jupyter. Dengan akses gratis ke GPU dan TPU, platform ini mempercepat proses pelatihan model deep learning. Beberapa kelebihannya termasuk gratis, berbasis cloud, mudah dibagikan, dan terintegrasi dengan Google Drive. Cara menggunakannya cukup sederhana, yaitu dengan mengunjungi Google Colab, memulai notebook baru atau membuka notebook yang sudah ada, kemudian memilih "Runtime" dan "Change runtime type" untuk mengaktifkan GPU atau TPU, dan mulai menulis kode Python."
+                                        ],
+                                        [
+                                            "Sementara itu, Visual Studio Code (VSCode) adalah editor teks untuk pengembangan perangkat lunak yang menawarkan berbagai fitur canggih, seperti integrasi dengan Git, debugging, dan plugin untuk Python serta Jupyter notebooks. Kelebihan VSCode antara lain ringan, cepat, mendukung plugin Python Extension, Jupyter, dan TensorFlow Snippets, serta menyediakan fitur debugging dan integrasi dengan Git. Untuk menggunakan VSCode, pertama-tama unduh dan instal dari situs resmi, kemudian pasang Python extension dan Jupyter extension, buka file Python atau Jupyter Notebook, dan mulai menulis kode Python."
+                                        ],
+                                        [
+                                            "Matplotlib adalah library visualisasi data 2D di Python yang sangat fleksibel. Library ini digunakan untuk membuat berbagai jenis grafik dan plot, dari yang sederhana hingga yang kompleks. Kelebihannya terletak pada fleksibilitasnya, memungkinkan pengguna untuk menyesuaikan grafik sesuai kebutuhan. Contoh penggunaannya termasuk membuat plot dan grafik untuk memahami distribusi data.",
+                                            "Seaborn adalah library visualisasi yang dibangun di atas Matplotlib dan menyediakan antarmuka tingkat tinggi untuk membuat grafik statistik. Kelebihan Seaborn adalah lebih mudah digunakan dibandingkan Matplotlib dan menyediakan grafik yang lebih informatif dengan visual yang lebih menarik. Contoh penggunaannya termasuk visualisasi distribusi data dan hubungan antar variabel.",
+                                            "Plotly adalah library visualisasi yang mendukung pembuatan grafik interaktif. Kelebihan utama Plotly adalah kemampuannya untuk menghasilkan grafik yang interaktif dan dapat digunakan di web. Contoh penggunaannya meliputi pembuatan dashboard interaktif dan visualisasi hasil eksperimen, yang memungkinkan interaksi langsung dengan data."
+                                        ] 
+                                    ]</span>,
+                                    <span class="text-blue-400">"learning_image_path"</span> : <span class="text-red-400">"https://storage.googleapis.com/my-bucket-name/images/nodejs-intro.jpg"</span>,
+                                    <span class="text-blue-400">"created_at"</span> : <span class="text-red-400">"2024-01-01T00:00:00Z"</span>,
+                                    <span class="text-blue-400">"updated_at"</span> : <span class="text-red-400">"2024-01-01T00:00:00Z"</span>
+                                }
+                            }
+                        </code>
+                    </pre>
+
+                    <h3 class="text-xl font-semibold text-gray-100 mt-4 mb-2 font-roboto"><i class="fa-regular fa-circle-dot"></i> Bad Response</h3>
+                    <pre class="bg-gray-900 p-4 rounded overflow-x-auto text-gray-200 font-roboto">
+                        <code>
+                            {
+                                <span class="text-blue-400">"error"</span> : <span class="text-red-400">true</span>,
+                                <span class="text-blue-400">"message"</span> : <span class="text-red-400">"Learning material not found. No material found with ID: {id}"</span>
+                            }
+                        </code>
+                    </pre>
+
+                </div>
+            </section>
+
+            <section id="prediction" class="mb-60">
+                <h2 class="text-2xl font-semibold text-blue-400 font-funnel"><i class="fa-regular fa-star"></i> Prediction Image</h2>
+                <p class="text-gray-300 mb-4 font-roboto">
+                    This API will return response in JSON format, about the prediction of fruits.
+                </p>
+
+                <div class="bg-gray-800 bg-opacity-60 backdrop-blur-lg p-6 rounded shadow">
+                    <h3 class="text-xl font-semibold text-gray-100 font-roboto"><i class="fa-regular fa-circle-dot"></i>
+                        Request</h3>
+                    <p class="text-gray-400 font-semibold">Method: <span
+                            class="text-blue-400 text-lg font-bold">POST</span></p>
+                    <p class="text-gray-400 font-semibold">URL: <span
+                            class="text-blue-400 text-lg font-bold">/predict</span></p>
+                    <p class="text-gray-400 font-semibold">Content-Type: <span
+                            class="text-blue-400 text-lg font-bold">multipart/form-data</span></p>
+                            <p class="text-gray-400 font-semibold">Key&Value: <span
+                                class="text-blue-400 text-lg font-bold">uploaded_file | image.jpg/etc</span></p>
+
+                    <h3 class="text-xl font-semibold text-gray-100 mt-4 mb-2 font-roboto"><i
+                            class="fa-regular fa-circle-dot"></i> Response Example</h3>
+                    <pre class="bg-gray-900 p-4 rounded overflow-x-auto text-gray-200 font-roboto">
+                        <code>
+                            {
+                                <span class="text-blue-400">"error"</span> : <span class="text-red-400">false</span>,
+                                <span class="text-blue-400">"message"</span> : <span class="text-red-400">"Prediction successfully !"</span>,
+                                <span class="text-blue-400">"prediction_result"</span> : {
+                                    <span class="text-blue-400">"predicted_class"</span> : <span class="text-red-400">0</span>,
+                                    <span class="text-blue-400">"predicted_label"</span> : <span class="text-red-400">"Apple"</span>,
+                                    <span class="text-blue-400">"image_url"</span> : <span class="text-red-400">"https://example.com/image.jpg"</span>,
+                                }
+                            }
+                        </code>
+                    </pre>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer
+        class="sm:fixed sm:bottom-0 sm:left-0 sm:right-0 bg-gray-800 bg-opacity-60 backdrop-blur-lg text-gray-400 text-center py-4 font-roboto">
+        Copyright 2024 &copy; Cunny. All Rights Reserved.
+    </footer>
+
+    <script src="src/assets/main.js"></script>
+</body>
+
+</html>
