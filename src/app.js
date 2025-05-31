@@ -1,4 +1,3 @@
-// app.js
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const learningMaterialsRoutes = require('./routes/learningMaterialsRoutes');
@@ -8,8 +7,14 @@ const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT || 9000,
     host: '0.0.0.0',
+    routes: {
+      cors: {
+        origin: ['*'], // 🔐 Limit this to your frontend domain in prod
+      },
+    },
   });
 
+  // Home Route
   server.route({
     method: 'GET',
     path: '/',
@@ -26,6 +31,7 @@ const init = async () => {
     }),
   });
 
+  // Dynamic Routes
   server.route(
     learningMaterialsRoutes.map(route => ({
       ...route,
@@ -33,13 +39,28 @@ const init = async () => {
     }))
   );
 
+  // Centralized Error Handler
+  server.ext('onPreResponse', (request, h) => {
+    const { response } = request;
+    if (response.isBoom) {
+      console.error('❌ API Error:', response.output.payload);
+      return h
+        .response({
+          status: 'error',
+          message: response.message || 'Internal Server Error',
+        })
+        .code(response.output.statusCode);
+    }
+    return h.continue;
+  });
+
+  // Test DB Connection
   try {
-    const client = await pool.connect();
+    await pool.query('SELECT 1');
     console.log('✅ PostgreSQL connected via Railway');
-    client.release();
   } catch (err) {
     console.error('⛔ DB connection failed:', err.message);
-    process.exit(1);
+    // Don't exit — allow app to stay alive in Railway
   }
 
   await server.start();
