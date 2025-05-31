@@ -16,9 +16,22 @@ const init = async () => {
       return {
         status: '✅ API is running',
         message: 'Welcome to CUNNY Content API',
+        routes: [
+          'GET /api/learning-materials',
+          'GET /api/learning-materials/{id}',
+          'POST /api/learning-materials',
+          'PUT /api/learning-materials/{id}',
+          'DELETE /api/learning-materials/{id}',
+        ],
       };
     },
   });
+
+  // Add prefix to all learning material routes
+  const prefixedRoutes = learningMaterialsRoutes.map(route => ({
+    ...route,
+    path: `/api${route.path}`,
+  }));
   
   server.route(learningMaterialsRoutes);
 
