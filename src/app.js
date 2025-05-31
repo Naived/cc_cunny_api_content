@@ -1,3 +1,4 @@
+// app.js
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const learningMaterialsRoutes = require('./routes/learningMaterialsRoutes');
@@ -9,7 +10,7 @@ const init = async () => {
     host: '0.0.0.0',
     routes: {
       cors: {
-        origin: ['*'], // 🔐 Limit this to your frontend domain in prod
+        origin: ['*'], // 🔐 Lock this down in production to your frontend domain
       },
     },
   });
@@ -31,7 +32,7 @@ const init = async () => {
     }),
   });
 
-  // Dynamic Routes
+  // Dynamic Routes with /api prefix
   server.route(
     learningMaterialsRoutes.map(route => ({
       ...route,
@@ -60,7 +61,7 @@ const init = async () => {
     console.log('✅ PostgreSQL connected via Railway');
   } catch (err) {
     console.error('⛔ DB connection failed:', err.message);
-    // Don't exit — allow app to stay alive in Railway
+    // Do NOT exit, keep app running on Railway
   }
 
   await server.start();
@@ -68,7 +69,7 @@ const init = async () => {
 };
 
 process.on('unhandledRejection', (err) => {
-  console.error('🔥 Unhandled Rejection:', err);
+  console.error('Unhandled Rejection:', err);
   process.exit(1);
 });
 

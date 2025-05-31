@@ -1,3 +1,4 @@
+//database.js
 const { Pool } = require('pg');
 
 const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
