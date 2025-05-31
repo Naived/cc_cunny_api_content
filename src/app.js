@@ -2,6 +2,7 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const learningMaterialsRoutes = require('./routes/learningMaterialsRoutes');
+const pool = require('./database');
 
 const init = async () => {
   const server = Hapi.server({
@@ -32,8 +33,16 @@ const init = async () => {
     ...route,
     path: `/api${route.path}`,
   }));
+  server.route(prefixedRoutes);
   
-  server.route(learningMaterialsRoutes);
+  try {
+    const client = await pool.connect();
+    console.log('✅ Connected to DB successfully');
+    client.release();
+  } catch (err) {
+    console.error('⛔ DB Connection Failed:', err.message);
+    process.exit(1); // kill server if DB fails
+  }
 
   await server.start();
   console.log(`Server running on ${server.info.uri}`);
