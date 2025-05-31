@@ -7,51 +7,48 @@ const pool = require('./config/database');
 const init = async () => {
   const server = Hapi.server({
     port: process.env.PORT || 9000,
-    host: '0.0.0.0', // 'localhost' or '0.0.0.0', // Allow Google App Engine to use any incoming requests
+    host: '0.0.0.0',
   });
 
   server.route({
     method: 'GET',
     path: '/',
-    handler: () => {
-      return {
-        status: '✅ API is running',
-        message: 'Welcome to CUNNY Content API',
-        routes: [
-          'GET /api/learning-materials',
-          'GET /api/learning-materials/{id}',
-          'POST /api/learning-materials',
-          'PUT /api/learning-materials/{id}',
-          'DELETE /api/learning-materials/{id}',
-        ],
-      };
-    },
+    handler: () => ({
+      status: '✅ API is running',
+      message: 'Welcome to CUNNY Content API',
+      routes: [
+        'GET /api/learning-materials',
+        'GET /api/learning-materials/{id}',
+        'POST /api/learning-materials',
+        'PUT /api/learning-materials/{id}',
+        'DELETE /api/learning-materials/{id}',
+      ],
+    }),
   });
 
-  // Add prefix to all learning material routes
-  const prefixedRoutes = learningMaterialsRoutes.map(route => ({
-    ...route,
-    path: `/api${route.path}`,
-  }));
-  server.route(prefixedRoutes);
-  
+  server.route(
+    learningMaterialsRoutes.map(route => ({
+      ...route,
+      path: `/api${route.path}`,
+    }))
+  );
+
   try {
     const client = await pool.connect();
-    console.log('✅ Connected to DB successfully');
+    console.log('✅ PostgreSQL connected via Railway');
     client.release();
   } catch (err) {
-    console.error('⛔ DB Connection Failed:', err.message);
-    process.exit(1); // kill server if DB fails
+    console.error('⛔ DB connection failed:', err.message);
+    process.exit(1);
   }
 
   await server.start();
-  console.log(`Server running on ${server.info.uri}`);
+  console.log(`🚀 Server live at ${server.info.uri}`);
 };
 
 process.on('unhandledRejection', (err) => {
-  console.error(err);
+  console.error('🔥 Unhandled Rejection:', err);
   process.exit(1);
 });
-
 
 init();
