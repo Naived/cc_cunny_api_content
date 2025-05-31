@@ -6,11 +6,17 @@ const isPostgres = process.env.DB_TYPE === 'postgres'; // Check if using Postgre
 const getAllLearningMaterials = async (req, h) => {
   try {
     const query = 'SELECT * FROM learning_materials';
-    const rows = isPostgres
-      ? (await pool.query(query)).rows // PostgreSQL
-      : (await pool.query(query))[0]; // MySQL
 
-    if (rows.length === 0) {
+    let rows;
+    const result = await pool.query(query);
+
+    if (isPostgres) {
+      rows = result?.rows;
+    } else {
+      rows = Array.isArray(result) ? result[0] : [];
+    }
+
+    if (!rows || rows.length === 0) {
       return h.response({
         error: false,
         message: 'No learning materials found.',
@@ -18,13 +24,12 @@ const getAllLearningMaterials = async (req, h) => {
     }
 
     const parsedRows = isPostgres
-    ? rows // PostgreSQL doesn't need JSON parsing
-    : rows.map((row) => ({
-      ...row,
-      sub_materials: typeof row.sub_materials === 'string' ? JSON.parse(row.sub_materials) : row.sub_materials,
-      sub_body_materials: typeof row.sub_body_materials === 'string' ? JSON.parse(row.sub_body_materials) : row.sub_body_materials,
-    }));
-
+      ? rows
+      : rows.map((row) => ({
+          ...row,
+          sub_materials: typeof row.sub_materials === 'string' ? JSON.parse(row.sub_materials) : row.sub_materials,
+          sub_body_materials: typeof row.sub_body_materials === 'string' ? JSON.parse(row.sub_body_materials) : row.sub_body_materials,
+        }));
 
     return h.response({
       error: false,
