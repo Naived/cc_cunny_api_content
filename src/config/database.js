@@ -9,20 +9,25 @@ const isCloud = process.env.NODE_ENV === 'production'; // Check if running in Cl
 let pool;
 
 if (isPostgres) {
-  // Configuration for PostgreSQL
-  pool = new Pool({
-    host: isCloud ? undefined : process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 5432,
-    ...(isCloud && {
-      connectionString: process.env.DB_SOCKET_PATH, // Use DB_SOCKET_PATH as the connection string
-      ssl: { rejectUnauthorized: false }, // Optional SSL configuration
-    }),
-  });
+  if (process.env.DB_SOCKET_PATH) {
+    // Using socket connection (rare, mostly GCP SQL)
+    pool = new Pool({
+      connectionString: process.env.DB_SOCKET_PATH,
+      ssl: { rejectUnauthorized: false },
+    });
+  } else {
+    // Standard Supabase / Railway style
+    pool = new Pool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT || 5432,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      ssl: isCloud ? { rejectUnauthorized: false } : false, // Supabase/Railway require SSL in production
+    });
+  }
 } else {
-  // Konfigurasi untuk MySQL
+  // MySQL config
   pool = mysql.createPool({
     host: isCloud ? process.env.DB_SOCKET_PATH : process.env.DB_HOST,
     user: process.env.DB_USER,

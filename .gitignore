@@ -1,8 +1,10 @@
+# -----------------------
 # Node.js dependencies
 node_modules/
 
 # Environment variables
 .env
+.env.*   # allow .env.production, .env.local, etc.
 
 # Logs
 logs/
@@ -10,15 +12,43 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# Build / Dist
+dist/
+build/
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# IDE/editor folders
+# Editor / IDE settings
 .vscode/
 .idea/
-
-# Temporary files
 *.swp
+
+# Testing
+coverage/
+.nyc_output/
+
+# Uploaded / dynamic content (optional: only if your app saves uploads locally)
+uploads/
+public/uploads/
+tmp/
 *.tmp
+
+# PostgreSQL dump files (optional)
+*.sql
+
+# Railway/Render local cache
+.railway/
+.render/
+
+# TypeScript (if used later)
+*.tsbuildinfo
+
+# Misc
+*.bak
+*.orig
+*.swp
+*.swo
