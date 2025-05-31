@@ -2,7 +2,7 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
 const learningMaterialsRoutes = require('./routes/learningMaterialsRoutes');
-const pool = require('./database');
+const pool = require('./config/database');
 
 const init = async () => {
   const server = Hapi.server({
