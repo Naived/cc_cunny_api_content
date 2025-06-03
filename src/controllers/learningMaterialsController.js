@@ -8,16 +8,12 @@ function normalizeMaterialFormat(material) {
     ...material,
     sub_materials: Array.isArray(material.sub_materials)
       ? material.sub_materials.map(item =>
-          Array.isArray(item) ? { topic: item[0] } :
-          typeof item === 'string' ? { topic: item } :
-          item
+          Array.isArray(item) ? item : [item]
         )
       : [],
     sub_body_materials: Array.isArray(material.sub_body_materials)
       ? material.sub_body_materials.map(item =>
-          Array.isArray(item) ? { body: item[0] } :
-          typeof item === 'string' ? { body: item } :
-          item
+          Array.isArray(item) ? item : [item]
         )
       : [],
   };
