@@ -1,76 +1,64 @@
 // app.js
-require('dotenv').config();
-const Hapi = require('@hapi/hapi');
-const learningMaterialsRoutes = require('./routes/learningMaterialsRoutes');
-const pool = require('./config/database');
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import learningMaterialsRoutes from './routes/learningMaterialsRoutes.js';
+import lessonsRoutes from './routes/lessonsRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import progressRoutes from './routes/progressRoutes.js';
+import classRoutes from './routes/classRoutes.js';
+import { runMigration } from './migrate.js';
 
-const init = async () => {
-  const server = Hapi.server({
-    port: process.env.PORT || 9000,
-    host: '0.0.0.0',
-    routes: {
-      cors: {
-        origin: ['*'], // 🔐 Lock this down in production to your frontend domain
-      },
-    },
-  });
+const app = new Hono();
 
-  // Home Route
-  server.route({
-    method: 'GET',
-    path: '/',
-    handler: () => ({
-      status: '✅ API is running',
-      message: 'Welcome to CUNNY Content API',
-      routes: [
-        'GET /api/learning-materials',
-        'GET /api/learning-materials/{id}',
-        'POST /api/learning-materials',
-        'PUT /api/learning-materials/{id}',
-        'DELETE /api/learning-materials/{id}',
-      ],
-    }),
-  });
+app.use('*', cors({
+  origin: '*',
+}));
 
-  // Dynamic Routes with /api prefix
-  server.route(
-    learningMaterialsRoutes.map(route => ({
-      ...route,
-      path: `/api${route.path}`,
-    }))
-  );
-
-  // Centralized Error Handler
-  server.ext('onPreResponse', (request, h) => {
-    const { response } = request;
-    if (response.isBoom) {
-      console.error('❌ API Error:', response.output.payload);
-      return h
-        .response({
-          status: 'error',
-          message: response.message || 'Internal Server Error',
-        })
-        .code(response.output.statusCode);
-    }
-    return h.continue;
-  });
-
-  // Test DB Connection
-  try {
-    await pool.query('SELECT 1');
-    console.log('✅ PostgreSQL connected via Railway');
-  } catch (err) {
-    console.error('⛔ DB connection failed:', err.message);
-    // Do NOT exit, keep app running on Railway
-  }
-
-  await server.start();
-  console.log(`🚀 Server live at ${server.info.uri}`);
-};
-
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  process.exit(1);
+app.onError((err, c) => {
+  console.error('API Error:', err);
+  return c.json({ status: 'error', message: err.message || 'Internal Server Error' }, 500);
 });
 
-init();
+app.get('/', (c) => {
+  return c.json({
+    status: 'API is running on Cloudflare Workers',
+    message: 'Welcome to CUNNY Content API',
+    routes: [
+      'GET /api/learning-materials',
+      'GET /api/learning-materials/:id',
+      'POST /api/learning-materials',
+      'PUT /api/learning-materials/:id',
+      'DELETE /api/learning-materials/:id',
+      'GET /api/lessons?language=id',
+      'GET /api/lessons/:slug?language=id',
+      'POST /api/lessons',
+      'PUT /api/lessons/:slug',
+      'DELETE /api/lessons/:slug',
+      'POST /api/auth/register',
+      'GET /api/auth/me',
+      'GET /api/me/progress',
+      'PUT /api/me/progress',
+      'POST /api/classes',
+      'POST /api/classes/join',
+      'GET /api/classes',
+      'GET /api/classes/:id/progress',
+      'POST /api/classes/:id/assignments',
+      'GET /api/classes/:id/assignments',
+      'GET /api/migrate',
+    ],
+  });
+});
+
+app.get('/api/migrate', async (c) => {
+  const result = await runMigration(c);
+  if (result.ok) return c.json({ error: false, message: 'Migration complete', lessons: result.lessons }, 200);
+  return c.json({ error: true, message: result.error }, 500);
+});
+
+app.route('/api', learningMaterialsRoutes);
+app.route('/api', lessonsRoutes);
+app.route('/api', authRoutes);
+app.route('/api', progressRoutes);
+app.route('/api', classRoutes);
+
+export default app;

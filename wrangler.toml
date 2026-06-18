@@ -1,0 +1,12 @@
+name = "cunny-content-api"
+main = "src/app.js"
+compatibility_date = "2024-11-01"
+
+# Enable nodejs_compat flag so the native pg module works on the Edge
+compatibility_flags = ["nodejs_compat"]
+
+# Define the Hyperdrive binding
+# You will need to replace the id below with your actual Hyperdrive ID from the Cloudflare Dashboard
+[[hyperdrive]]
+binding = "DATABASE"
+id = "03a36dc78a9d405fb29e88eeb7c9df52"

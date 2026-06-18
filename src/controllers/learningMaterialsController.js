@@ -1,6 +1,5 @@
 // learningMaterialsController.js
-const pool = require('../config/database');
-const isPostgres = process.env.DB_TYPE === 'postgres';
+import { getClient } from '../config/database.js';
 
 // Normalize sub-materials & body format
 function normalizeMaterialFormat(material) {
@@ -19,99 +18,97 @@ function normalizeMaterialFormat(material) {
   };
 }
 
-// Safe JSON parse helper
-function tryParseJSON(value, fallback = []) {
-  try {
-    return typeof value === 'string' ? JSON.parse(value) : value;
-  } catch {
-    return fallback;
-  }
-}
-
 // Parse material record
 function parseMaterial(row) {
-  const parsed = isPostgres ? row : {
-    ...row,
-    sub_materials: tryParseJSON(row.sub_materials),
-    sub_body_materials: tryParseJSON(row.sub_body_materials),
-  };
+  // We assume PostgreSQL behavior with Neon/Hyperdrive
+  const parsed = row; 
   return normalizeMaterialFormat(parsed);
 }
 
 // GET All
-const getAllLearningMaterials = async (req, h) => {
+export const getAllLearningMaterials = async (c) => {
+  let client;
   try {
+    client = getClient(c.env);
+    await client.connect();
+    
     const query = 'SELECT * FROM learning_materials';
-    const result = await pool.query(query);
-    const rows = isPostgres ? result?.rows : (Array.isArray(result) ? result[0] : []);
+    const result = await client.query(query);
+    const rows = result.rows || [];
 
     if (!rows || rows.length === 0) {
-      return h.response({
+      return c.json({
         error: false,
         message: 'No learning materials found.',
         learningMaterials: [],
-      }).code(200);
+      }, 200);
     }
 
     const parsedRows = rows.map(parseMaterial);
 
-    return h.response({
+    return c.json({
       error: false,
       message: 'Learning materials retrieved successfully.',
       learningMaterials: parsedRows,
-    }).code(200);
+    }, 200);
   } catch (err) {
-    return h.response({
+    return c.json({
       error: true,
       message: `Failed to retrieve learning materials. ${err.message}`,
-    }).code(500);
+    }, 500);
+  } finally {
+    if (client) c.executionCtx.waitUntil(client.end());
   }
 };
 
 // GET by ID
-const getLearningMaterialById = async (req, h) => {
-  const { id } = req.params;
+export const getLearningMaterialById = async (c) => {
+  const id = c.req.param('id');
+  let client;
   try {
-    const query = isPostgres
-      ? 'SELECT * FROM learning_materials WHERE id = $1'
-      : 'SELECT * FROM learning_materials WHERE id = ?';
+    client = getClient(c.env);
+    await client.connect();
 
-    const rows = isPostgres
-      ? (await pool.query(query, [id])).rows
-      : (await pool.query(query, [id]))[0];
+    const query = 'SELECT * FROM learning_materials WHERE id = $1';
+    const result = await client.query(query, [id]);
+    const rows = result.rows || [];
 
     if (!rows || rows.length === 0) {
-      return h.response({
+      return c.json({
         error: true,
         message: `No learning material found with ID: ${id}`,
-      }).code(404);
+      }, 404);
     }
 
     const material = parseMaterial(rows[0]);
 
-    return h.response({
+    return c.json({
       error: false,
       message: 'Learning material retrieved successfully.',
       learningMaterial: material,
-    }).code(200);
+    }, 200);
   } catch (err) {
-    return h.response({
+    return c.json({
       error: true,
       message: `Failed to retrieve learning material. ${err.message}`,
-    }).code(500);
+    }, 500);
+  } finally {
+    if (client) c.executionCtx.waitUntil(client.end());
   }
 };
 
 // CREATE
-const createLearningMaterial = async (req, h) => {
-  const { title, description, learning_image_path, sub_body_materials, sub_materials } = req.payload;
+export const createLearningMaterial = async (c) => {
+  let client;
   try {
-    const query = isPostgres
-      ? `INSERT INTO learning_materials (title, description, sub_materials, sub_body_materials, learning_image_path, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id`
-      : `INSERT INTO learning_materials (title, description, sub_materials, sub_body_materials, learning_image_path, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, NOW(), NOW())`;
+    const { title, description, learning_image_path, sub_body_materials, sub_materials } = await c.req.json();
+    
+    client = getClient(c.env);
+    await client.connect();
 
+    const query = `INSERT INTO learning_materials (title, description, sub_materials, sub_body_materials, learning_image_path, created_at, updated_at)
+                   VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING id`;
+    
     const params = [
       title,
       description,
@@ -120,13 +117,10 @@ const createLearningMaterial = async (req, h) => {
       learning_image_path,
     ];
 
-    const result = isPostgres
-      ? (await pool.query(query, params)).rows[0]
-      : (await pool.query(query, params))[0];
+    const result = await client.query(query, params);
+    const newId = result.rows[0].id;
 
-    const newId = isPostgres ? result.id : result.insertId;
-
-    return h.response({
+    return c.json({
       error: false,
       message: 'Learning material created successfully.',
       learningMaterial: {
@@ -137,25 +131,29 @@ const createLearningMaterial = async (req, h) => {
         sub_body_materials,
         learning_image_path,
       },
-    }).code(201);
+    }, 201);
   } catch (err) {
-    return h.response({
+    return c.json({
       error: true,
       message: `Failed to create learning material. ${err.message}`,
-    }).code(500);
+    }, 500);
+  } finally {
+    if (client) c.executionCtx.waitUntil(client.end());
   }
 };
 
 // UPDATE
-const updateLearningMaterial = async (req, h) => {
-  const { id } = req.params;
-  const { title, description, learning_image_path, sub_body_materials, sub_materials } = req.payload;
+export const updateLearningMaterial = async (c) => {
+  const id = c.req.param('id');
+  let client;
   try {
-    const query = isPostgres
-      ? `UPDATE learning_materials SET title = $1, description = $2, learning_image_path = $3, sub_materials = $4, sub_body_materials = $5, updated_at = NOW()
-         WHERE id = $6`
-      : `UPDATE learning_materials SET title = ?, description = ?, learning_image_path = ?, sub_materials = ?, sub_body_materials = ?, updated_at = NOW()
-         WHERE id = ?`;
+    const { title, description, learning_image_path, sub_body_materials, sub_materials } = await c.req.json();
+    
+    client = getClient(c.env);
+    await client.connect();
+
+    const query = `UPDATE learning_materials SET title = $1, description = $2, learning_image_path = $3, sub_materials = $4, sub_body_materials = $5, updated_at = NOW()
+                   WHERE id = $6`;
 
     const params = [
       title,
@@ -166,18 +164,16 @@ const updateLearningMaterial = async (req, h) => {
       id,
     ];
 
-    const result = isPostgres
-      ? (await pool.query(query, params)).rowCount
-      : (await pool.query(query, params))[0].affectedRows;
+    const result = await client.query(query, params);
 
-    if (result === 0) {
-      return h.response({
+    if (result.rowCount === 0) {
+      return c.json({
         error: true,
         message: `No learning material found with ID: ${id}`,
-      }).code(404);
+      }, 404);
     }
 
-    return h.response({
+    return c.json({
       error: false,
       message: 'Learning material updated successfully.',
       learningMaterial: {
@@ -188,50 +184,45 @@ const updateLearningMaterial = async (req, h) => {
         sub_body_materials,
         learning_image_path,
       },
-    }).code(200);
+    }, 200);
   } catch (err) {
-    return h.response({
+    return c.json({
       error: true,
       message: `Failed to update learning material. ${err.message}`,
-    }).code(500);
+    }, 500);
+  } finally {
+    if (client) c.executionCtx.waitUntil(client.end());
   }
 };
 
 // DELETE
-const deleteLearningMaterial = async (req, h) => {
-  const { id } = req.params;
+export const deleteLearningMaterial = async (c) => {
+  const id = c.req.param('id');
+  let client;
   try {
-    const query = isPostgres
-      ? 'DELETE FROM learning_materials WHERE id = $1'
-      : 'DELETE FROM learning_materials WHERE id = ?';
+    client = getClient(c.env);
+    await client.connect();
 
-    const result = isPostgres
-      ? (await pool.query(query, [id])).rowCount
-      : (await pool.query(query, [id]))[0].affectedRows;
+    const query = 'DELETE FROM learning_materials WHERE id = $1';
+    const result = await client.query(query, [id]);
 
-    if (result === 0) {
-      return h.response({
+    if (result.rowCount === 0) {
+      return c.json({
         error: true,
         message: `No learning material found with ID: ${id}`,
-      }).code(404);
+      }, 404);
     }
 
-    return h.response({
+    return c.json({
       error: false,
       message: 'Learning material deleted successfully.',
-    }).code(200);
+    }, 200);
   } catch (err) {
-    return h.response({
+    return c.json({
       error: true,
       message: `Failed to delete learning material. ${err.message}`,
-    }).code(500);
+    }, 500);
+  } finally {
+    if (client) c.executionCtx.waitUntil(client.end());
   }
-};
-
-module.exports = {
-  getAllLearningMaterials,
-  getLearningMaterialById,
-  createLearningMaterial,
-  updateLearningMaterial,
-  deleteLearningMaterial,
 };

@@ -1,20 +1,21 @@
 // learningMaterialsRoutes.js
-const {
+import { Hono } from 'hono';
+import {
   getAllLearningMaterials,
   getLearningMaterialById,
   createLearningMaterial,
   updateLearningMaterial,
   deleteLearningMaterial,
-} = require('../controllers/learningMaterialsController');
+} from '../controllers/learningMaterialsController.js';
 
-const learningMaterialsRoutes = [
-  { method: 'GET', path: '/learning-materials', handler: getAllLearningMaterials },
-  { method: 'GET', path: '/learning-materials/{id}', handler: getLearningMaterialById },
-  // Disable these three routes below in production as per your note
-  { method: 'POST', path: '/learning-materials', handler: createLearningMaterial },
-  { method: 'PUT', path: '/learning-materials/{id}', handler: updateLearningMaterial },
-  { method: 'DELETE', path: '/learning-materials/{id}', handler: deleteLearningMaterial },
-];
+const router = new Hono();
 
-module.exports = learningMaterialsRoutes;
-  
+router.get('/learning-materials', getAllLearningMaterials);
+router.get('/learning-materials/:id', getLearningMaterialById);
+
+// Disable these three routes below in production as per your note
+router.post('/learning-materials', createLearningMaterial);
+router.put('/learning-materials/:id', updateLearningMaterial);
+router.delete('/learning-materials/:id', deleteLearningMaterial);
+
+export default router;

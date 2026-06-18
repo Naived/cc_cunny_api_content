@@ -1,19 +1,15 @@
-//database.js
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Client } = pg;
 
-const isPostgres = process.env.DATABASE_URL?.startsWith('postgres');
-const isCloud = process.env.NODE_ENV === 'production';
+export const getClient = (env) => {
+  const connectionString = env.DATABASE?.connectionString || process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error(`❌ Database connection string not found. Please bind Hyperdrive or set DATABASE_URL.`);
+  }
 
-if (!isPostgres) {
-  throw new Error(`❌ Invalid DATABASE_URL or not using PostgreSQL.`);
-}
-
-console.log('🔍 Using PostgreSQL via DATABASE_URL');
-console.log('🌐 Environment:', process.env.NODE_ENV);
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: isCloud ? { rejectUnauthorized: false } : false,
-});
-
-module.exports = pool;
+  // Use Client instead of Pool. Hyperdrive IS the connection pool.
+  // Using pg.Pool on Cloudflare Workers hangs the process event loop.
+  return new Client({
+    connectionString,
+  });
+};
