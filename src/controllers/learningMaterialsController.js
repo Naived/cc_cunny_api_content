@@ -15,7 +15,11 @@ export const getAllLearningMaterials = async (c) => {
     const parsedRows = [];
     for (const course of courses) {
       const lessonsResult = await client.query(
-        'SELECT slug, title FROM lessons WHERE course_slug = $1 AND language = $2 ORDER BY id ASC',
+        `SELECT l.slug, l.title 
+         FROM lessons l
+         LEFT JOIN chapters ch ON l.chapter_slug = ch.slug
+         WHERE l.course_slug = $1 AND l.language = $2
+         ORDER BY COALESCE(ch.level, 0) ASC, l.lesson_order ASC, l.id ASC`,
         [course.slug, language]
       );
       const lessons = lessonsResult.rows || [];
@@ -69,7 +73,11 @@ export const getLearningMaterialById = async (c) => {
 
     const course = courseRows[0];
     const lessonsResult = await client.query(
-      'SELECT slug, title FROM lessons WHERE course_slug = $1 AND language = $2 ORDER BY id ASC',
+      `SELECT l.slug, l.title 
+       FROM lessons l
+       LEFT JOIN chapters ch ON l.chapter_slug = ch.slug
+       WHERE l.course_slug = $1 AND l.language = $2
+       ORDER BY COALESCE(ch.level, 0) ASC, l.lesson_order ASC, l.id ASC`,
       [course.slug, language]
     );
     const lessons = lessonsResult.rows || [];
