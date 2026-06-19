@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cunny Content API Explorer and Interactive Previewer">
+  <title>Cunny Content Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+    }
+    .gradient-bg {
+      background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent),
+                  radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.15), transparent),
+                  #0b0f19;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-hover:hover {
+      background: rgba(30, 41, 59, 0.6);
+      border-color: rgba(139, 92, 246, 0.4);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    /* Horizontal path dots connection styling */
+    .journey-path::before {
+      content: '';
+      position: absolute;
+      left: 1.75rem;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, #8b5cf6, #3b82f6);
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="gradient-bg text-slate-200 min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-graduation-cap text-white text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Cunny Explorer</h1>
+          <p class="text-xs text-slate-400">Interactive API & Course Previewer</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <!-- Language Selector -->
+        <div class="flex bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+          <button id="btn-lang-id" onclick="setLanguage('id')" class="px-3 py-1 text-xs font-semibold rounded-md transition-all bg-indigo-600 text-white shadow">ID</button>
+          <button id="btn-lang-en" onclick="setLanguage('en')" class="px-3 py-1 text-xs font-semibold rounded-md transition-all text-slate-400 hover:text-slate-200">EN</button>
+        </div>
+        <a href="{{API_URL}}/api/migrate" target="_blank" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all">
+          <i class="fa-solid fa-database mr-1"></i> Remigrate DB
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow grid grid-cols-1 lg:grid-cols-4 gap-8">
+    
+    <!-- Sidebar: Categories & Details -->
+    <aside class="space-y-6 lg:col-span-1">
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-sm font-semibold text-indigo-400 uppercase tracking-wider mb-4">Categories</h2>
+        <div id="category-list" class="space-y-2">
+          <!-- Categories loaded dynamically -->
+          <div class="animate-pulse flex space-x-4">
+            <div class="flex-1 space-y-4 py-1">
+              <div class="h-8 bg-slate-800 rounded"></div>
+              <div class="h-8 bg-slate-800 rounded"></div>
+              <div class="h-8 bg-slate-800 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Endpoint Inspector -->
+      <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-4">API Endpoints</h2>
+        <div class="space-y-3 text-xs">
+          <div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">GET</span>
+            <a href="{{API_URL}}/api/categories" target="_blank" class="text-slate-400 hover:text-slate-200 underline ml-2 font-mono break-all">/api/categories</a>
+          </div>
+          <div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">GET</span>
+            <a id="inspect-cat-courses" href="{{API_URL}}/api/categories/ai/courses" target="_blank" class="text-slate-400 hover:text-slate-200 underline ml-2 font-mono break-all">/api/categories/:slug/courses</a>
+          </div>
+          <div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">GET</span>
+            <a id="inspect-journey" href="{{API_URL}}/api/courses/intro-to-ai/journey" target="_blank" class="text-slate-400 hover:text-slate-200 underline ml-2 font-mono break-all">/api/courses/:slug/journey</a>
+          </div>
+          <div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">GET</span>
+            <a id="inspect-lesson" href="{{API_URL}}/api/lessons/what-is-ai" target="_blank" class="text-slate-400 hover:text-slate-200 underline ml-2 font-mono break-all">/api/lessons/:slug</a>
+          </div>
+          <div>
+            <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono font-bold">GET</span>
+            <a href="{{API_URL}}/api/learning-materials" target="_blank" class="text-slate-400 hover:text-slate-200 underline ml-2 font-mono break-all">/api/learning-materials</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace (Right panel) -->
+    <main class="lg:col-span-3 space-y-6">
+      
+      <!-- Breadcrumbs & Navigation -->
+      <div class="flex items-center space-x-2 text-sm text-slate-400 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+        <span onclick="goHome()" class="cursor-pointer hover:text-indigo-400 transition-all font-semibold">Home</span>
+        <span id="nav-divider-1" class="hidden"><i class="fa-solid fa-chevron-right text-xs text-slate-600"></i></span>
+        <span id="nav-category" class="hidden font-semibold text-slate-200"></span>
+        <span id="nav-divider-2" class="hidden"><i class="fa-solid fa-chevron-right text-xs text-slate-600"></i></span>
+        <span id="nav-course" class="hidden font-semibold text-slate-200"></span>
+        <span id="nav-divider-3" class="hidden"><i class="fa-solid fa-chevron-right text-xs text-slate-600"></i></span>
+        <span id="nav-lesson" class="hidden font-semibold text-indigo-400"></span>
+      </div>
+
+      <!-- Main Dynamic Content Box -->
+      <div id="dynamic-content">
+        <!-- Will show either Category Courses, Journey Path, or Lesson content -->
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/60 py-6 text-center text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>Cunny Content API Explorer &copy; 2026. Made with pride for pair-programming verification.</p>
+    </div>
+  </footer>
+
+  <!-- Frontend JS Logic -->
+  <script>
+    const baseUrl = '{{API_URL}}';
+    let currentLanguage = 'id';
+    let categories = [];
+    let selectedCategory = null;
+    let selectedCourse = null;
+    let selectedLesson = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories();
+    });
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.getElementById('btn-lang-id').className = lang === 'id' 
+        ? 'px-3 py-1 text-xs font-semibold rounded-md transition-all bg-indigo-600 text-white shadow'
+        : 'px-3 py-1 text-xs font-semibold rounded-md transition-all text-slate-400 hover:text-slate-200';
+      document.getElementById('btn-lang-en').className = lang === 'en' 
+        ? 'px-3 py-1 text-xs font-semibold rounded-md transition-all bg-indigo-600 text-white shadow'
+        : 'px-3 py-1 text-xs font-semibold rounded-md transition-all text-slate-400 hover:text-slate-200';
+
+      // Reload the current view with the new language
+      loadCategories();
+      if (selectedLesson) {
+        loadLesson(selectedLesson.slug);
+      } else if (selectedCourse) {
+        loadCourseJourney(selectedCourse.slug);
+      } else if (selectedCategory) {
+        loadCategoryCourses(selectedCategory.slug);
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const response = await fetch(`${baseUrl}/api/categories?language=${currentLanguage}`);
+        const data = await response.json();
+        if (data.categories) {
+          categories = data.categories;
+          renderCategorySidebar();
+          // Default load first category if nothing selected yet
+          if (!selectedCategory && categories.length > 0) {
+            loadCategoryCourses(categories[0].slug);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load categories', err);
+      }
+    }
+
+    function renderCategorySidebar() {
+      const container = document.getElementById('category-list');
+      container.innerHTML = '';
+      categories.forEach(cat => {
+        const isActive = selectedCategory && selectedCategory.slug === cat.slug;
+        const button = document.createElement('button');
+        button.className = `w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
+          isActive ? 'bg-indigo-600 text-white shadow shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+        }`;
+        
+        let iconHtml = '<i class="fa-solid fa-code text-xs"></i>';
+        if (cat.slug === 'ai') iconHtml = '<i class="fa-solid fa-brain text-xs"></i>';
+        if (cat.slug === 'data') iconHtml = '<i class="fa-solid fa-chart-simple text-xs"></i>';
+        if (cat.slug === 'cnn') iconHtml = '<i class="fa-solid fa-eye text-xs"></i>';
+
+        button.innerHTML = `<span class="flex items-center space-x-2.5">${iconHtml}<span>${cat.name}</span></span><i class="fa-solid fa-chevron-right text-[10px] opacity-60"></i>`;
+        button.onclick = () => loadCategoryCourses(cat.slug);
+        container.appendChild(button);
+      });
+    }
+
+    function goHome() {
+      selectedCourse = null;
+      selectedLesson = null;
+      document.getElementById('nav-divider-2').classList.add('hidden');
+      document.getElementById('nav-course').classList.add('hidden');
+      document.getElementById('nav-divider-3').classList.add('hidden');
+      document.getElementById('nav-lesson').classList.add('hidden');
+      if (selectedCategory) {
+        loadCategoryCourses(selectedCategory.slug);
+      }
+    }
+
+    async function loadCategoryCourses(catSlug) {
+      selectedCategory = categories.find(c => c.slug === catSlug);
+      selectedCourse = null;
+      selectedLesson = null;
+
+      // Update Navigation
+      document.getElementById('nav-divider-1').classList.remove('hidden');
+      const navCat = document.getElementById('nav-category');
+      navCat.classList.remove('hidden');
+      navCat.innerText = selectedCategory.name;
+      
+      document.getElementById('nav-divider-2').classList.add('hidden');
+      document.getElementById('nav-course').classList.add('hidden');
+      document.getElementById('nav-divider-3').classList.add('hidden');
+      document.getElementById('nav-lesson').classList.add('hidden');
+
+      // Update Inspectors
+      document.getElementById('inspect-cat-courses').href = `${baseUrl}/api/categories/${catSlug}/courses?language=${currentLanguage}`;
+
+      renderCategorySidebar();
+
+      const workspace = document.getElementById('dynamic-content');
+      workspace.innerHTML = `<div class="animate-pulse grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="h-32 bg-slate-800 rounded-2xl"></div>
+        <div class="h-32 bg-slate-800 rounded-2xl"></div>
+      </div>`;
+
+      try {
+        const response = await fetch(`${baseUrl}/api/categories/${catSlug}/courses?language=${currentLanguage}`);
+        const data = await response.json();
+        
+        if (data.courses) {
+          workspace.innerHTML = `
+            <div class="space-y-6">
+              <div class="glass-card rounded-2xl p-6 border-l-4 border-indigo-500">
+                <h3 class="text-xl font-bold text-slate-100">${data.category} Path</h3>
+                <p class="text-sm text-slate-400 mt-1">${data.description}</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="course-grid"></div>
+            </div>
+          `;
+
+          const grid = document.getElementById('course-grid');
+          if (data.courses.length === 0) {
+            grid.innerHTML = `<p class="col-span-2 text-center text-slate-500 py-10">No courses in this category yet.</p>`;
+            return;
+          }
+
+          data.courses.forEach(course => {
+            const card = document.createElement('div');
+            card.className = 'glass-card glass-card-hover rounded-2xl p-6 flex flex-col justify-between transition-all cursor-pointer';
+            card.onclick = () => loadCourseJourney(course.slug);
+            card.innerHTML = `
+              <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                  <img src="${course.icon_url || 'https://img.icons8.com/color/96/code.png'}" class="w-12 h-12 rounded-xl bg-slate-800 p-2" alt="Course icon"/>
+                  <span class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700 font-semibold">Order #${course.sorting_order}</span>
+                </div>
+                <div>
+                  <h4 class="text-lg font-bold text-slate-100">${course.title}</h4>
+                  <p class="text-xs text-slate-400 mt-1 line-clamp-2">${course.description}</p>
+                </div>
+              </div>
+              <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-indigo-400 font-semibold">
+                <span>Explore Journey</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        }
+      } catch (err) {
+        workspace.innerHTML = `<p class="text-center text-red-400 py-10">Failed to load courses: ${err.message}</p>`;
+      }
+    }
+
+    async function loadCourseJourney(courseSlug) {
+      selectedCourse = { slug: courseSlug };
+      selectedLesson = null;
+
+      // Update Navigation
+      document.getElementById('nav-divider-2').classList.remove('hidden');
+      const navCourse = document.getElementById('nav-course');
+      navCourse.classList.remove('hidden');
+      navCourse.innerText = courseSlug;
+      navCourse.onclick = () => loadCourseJourney(courseSlug);
+      navCourse.className = 'cursor-pointer hover:text-indigo-400 transition-all font-semibold';
+      
+      document.getElementById('nav-divider-3').classList.add('hidden');
+      document.getElementById('nav-lesson').classList.add('hidden');
+
+      // Update Inspectors
+      document.getElementById('inspect-journey').href = `${baseUrl}/api/courses/${courseSlug}/journey?language=${currentLanguage}`;
+
+      const workspace = document.getElementById('dynamic-content');
+      workspace.innerHTML = `<div class="animate-pulse space-y-6">
+        <div class="h-20 bg-slate-800 rounded-2xl"></div>
+        <div class="h-40 bg-slate-800 rounded-2xl"></div>
+      </div>`;
+
+      try {
+        const response = await fetch(`${baseUrl}/api/courses/${courseSlug}/journey?language=${currentLanguage}`);
+        const data = await response.json();
+        
+        if (data.chapters) {
+          // Update navbar title with the proper course title
+          document.getElementById('nav-course').innerText = data.course_title;
+
+          workspace.innerHTML = `
+            <div class="space-y-8">
+              <div class="glass-card rounded-2xl p-6 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/20">
+                <div class="flex items-center space-x-3 text-xs text-indigo-400 font-bold uppercase tracking-wider mb-1">
+                  <span>Course Journey</span>
+                  <span>•</span>
+                  <span>${data.chapters.length} Levels</span>
+                </div>
+                <h3 class="text-2xl font-bold text-slate-100">${data.course_title}</h3>
+              </div>
+
+              <div class="relative pl-2 py-4 journey-path" id="chapter-list"></div>
+            </div>
+          `;
+
+          const list = document.getElementById('chapter-list');
+          if (data.chapters.length === 0) {
+            list.innerHTML = `<p class="text-center text-slate-500 py-10">No chapters or levels added to this journey yet.</p>`;
+            return;
+          }
+
+          data.chapters.forEach(ch => {
+            const chBox = document.createElement('div');
+            chBox.className = 'relative mb-10 last:mb-0 pl-14';
+            
+            // Chapter Level Badge (the timeline node)
+            chBox.innerHTML = `
+              <div class="absolute left-0 top-0.5 h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 border-4 border-slate-950 z-10">
+                <span class="text-white font-extrabold text-sm">Lvl ${ch.level}</span>
+              </div>
+              <div class="space-y-4">
+                <div>
+                  <h4 class="text-lg font-bold text-slate-100 flex items-center space-x-2">
+                    <span>${ch.title}</span>
+                  </h4>
+                  <p class="text-xs text-slate-500">Level ${ch.level} Chapter</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="lessons-ch-${ch.slug}"></div>
+              </div>
+            `;
+            
+            list.appendChild(chBox);
+
+            const lessonsContainer = document.getElementById(`lessons-ch-${ch.slug}`);
+            if (ch.lessons.length === 0) {
+              lessonsContainer.innerHTML = `<p class="text-slate-500 text-xs italic py-2 col-span-2">No lessons inside this level.</p>`;
+              return;
+            }
+
+            ch.lessons.forEach(les => {
+              const lesCard = document.createElement('div');
+              lesCard.className = 'glass-card glass-card-hover rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all';
+              lesCard.onclick = () => loadLesson(les.slug);
+              lesCard.innerHTML = `
+                <div class="space-y-1">
+                  <h5 class="text-sm font-bold text-slate-200">${les.title}</h5>
+                  <p class="text-xs text-slate-400 line-clamp-1">${les.summary || 'Tap to learn'}</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  ${les.done 
+                    ? '<span class="h-6 w-6 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs"><i class="fa-solid fa-check"></i></span>'
+                    : '<span class="h-6 w-6 rounded-full bg-slate-800 text-slate-500 border border-slate-700 flex items-center justify-center text-[10px]"><i class="fa-solid fa-play"></i></span>'
+                  }
+                </div>
+              `;
+              lessonsContainer.appendChild(lesCard);
+            });
+          });
+        }
+      } catch (err) {
+        workspace.innerHTML = `<p class="text-center text-red-400 py-10">Failed to load journey: ${err.message}</p>`;
+      }
+    }
+
+    async function loadLesson(lessonSlug) {
+      selectedLesson = { slug: lessonSlug };
+
+      // Update Navigation
+      document.getElementById('nav-divider-3').classList.remove('hidden');
+      const navLesson = document.getElementById('nav-lesson');
+      navLesson.classList.remove('hidden');
+      navLesson.innerText = lessonSlug;
+
+      // Update Inspectors
+      document.getElementById('inspect-lesson').href = `${baseUrl}/api/lessons/${lessonSlug}?language=${currentLanguage}`;
+
+      const workspace = document.getElementById('dynamic-content');
+      workspace.innerHTML = `<div class="animate-pulse space-y-4">
+        <div class="h-10 bg-slate-800 rounded"></div>
+        <div class="h-32 bg-slate-800 rounded"></div>
+        <div class="h-32 bg-slate-800 rounded"></div>
+      </div>`;
+
+      try {
+        const response = await fetch(`${baseUrl}/api/lessons/${lessonSlug}?language=${currentLanguage}`);
+        const data = await response.json();
+        
+        if (data.lesson) {
+          const lesson = data.lesson;
+          navLesson.innerText = lesson.title;
+
+          workspace.innerHTML = `
+            <div class="space-y-6">
+              <!-- Lesson Header -->
+              <div class="glass-card rounded-2xl p-6 bg-gradient-to-r from-slate-900 via-indigo-950/10 to-slate-900">
+                <button onclick="loadCourseJourney('${lesson.course_slug}')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold mb-2 flex items-center space-x-1.5 transition-all">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Back to Journey</span>
+                </button>
+                <h3 class="text-2xl font-extrabold text-slate-100">${lesson.title}</h3>
+                <p class="text-sm text-slate-400 mt-1">${lesson.summary || ''}</p>
+              </div>
+
+              <!-- Blocks Container -->
+              <div class="space-y-6" id="lesson-blocks"></div>
+
+              <!-- Finish button -->
+              <div class="flex justify-center pt-6">
+                <button onclick="loadCourseJourney('${lesson.course_slug}')" class="px-8 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:opacity-90 active:scale-95 transition-all flex items-center space-x-2">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Complete Lesson</span>
+                </button>
+              </div>
+            </div>
+          `;
+
+          const blocksContainer = document.getElementById('lesson-blocks');
+          const blocks = lesson.blocks || [];
+
+          blocks.forEach((block, idx) => {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'glass-card rounded-2xl p-6 space-y-4';
+
+            if (block.type === 'text') {
+              blockDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                  <span class="h-6 w-6 rounded bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs mt-0.5"><i class="fa-solid fa-align-left"></i></span>
+                  <div class="prose prose-invert text-slate-300 text-sm leading-relaxed whitespace-pre-line">${block.markdown}</div>
+                </div>
+              `;
+            } else if (block.type === 'image') {
+              blockDiv.innerHTML = `
+                <div class="space-y-2">
+                  <img src="${block.image_url}" class="rounded-xl max-h-72 w-full object-cover border border-slate-800" alt="Block image"/>
+                  ${block.caption ? `<p class="text-xs text-center text-slate-500 italic">${block.caption}</p>` : ''}
+                </div>
+              `;
+            } else if (block.type === 'callout') {
+              const isWarning = block.style === 'warning';
+              blockDiv.className = `glass-card rounded-2xl p-6 border-l-4 ${
+                isWarning ? 'border-amber-500 bg-amber-500/5' : 'border-indigo-500 bg-indigo-500/5'
+              }`;
+              blockDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                  <span class="h-6 w-6 rounded flex items-center justify-center text-xs mt-0.5 ${
+                    isWarning ? 'bg-amber-500/10 text-amber-400' : 'bg-indigo-500/10 text-indigo-400'
+                  }">
+                    ${isWarning ? '<i class="fa-solid fa-triangle-exclamation"></i>' : '<i class="fa-solid fa-circle-info"></i>'}
+                  </span>
+                  <div class="text-sm text-slate-300 leading-relaxed whitespace-pre-line">${block.markdown}</div>
+                </div>
+              `;
+            } else if (block.type === 'quiz') {
+              let choicesHtml = '';
+              block.choices.forEach((choice, cIdx) => {
+                choicesHtml += `
+                  <button onclick="checkQuizAnswer(this, ${block.answer_index}, ${cIdx}, ${idx})" class="w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 hover:bg-slate-800/40 hover:border-slate-700 transition-all text-sm font-semibold flex items-center justify-between">
+                    <span>${choice}</span>
+                    <span class="choice-icon hidden"></span>
+                  </button>
+                `;
+              });
+
+              blockDiv.innerHTML = `
+                <div class="space-y-4">
+                  <div class="flex items-center space-x-2 text-xs text-purple-400 font-bold uppercase tracking-wider">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Knowledge Check</span>
+                  </div>
+                  <h4 class="text-base font-bold text-slate-100">${block.question}</h4>
+                  
+                  <div class="space-y-2">${choicesHtml}</div>
+
+                  <!-- Hint & Explanation -->
+                  <div id="quiz-details-${idx}" class="hidden space-y-3 pt-3 border-t border-slate-800">
+                    ${block.hint ? `
+                      <div class="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-3 text-xs flex items-start space-x-2">
+                        <i class="fa-regular fa-lightbulb text-indigo-400 mt-0.5"></i>
+                        <span class="text-slate-300"><strong>Hint:</strong> ${block.hint}</span>
+                      </div>
+                    ` : ''}
+                    <div id="quiz-expl-${idx}" class="hidden bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3 text-xs flex items-start space-x-2">
+                      <i class="fa-regular fa-circle-check text-emerald-400 mt-0.5"></i>
+                      <span class="text-slate-300"><strong>Explanation:</strong> ${block.explanation}</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else if (block.type === 'widget') {
+              blockDiv.innerHTML = `
+                <div class="space-y-4">
+                  <div class="flex items-center space-x-2 text-xs text-emerald-400 font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>Interactive Widget: ${block.widget_type}</span>
+                  </div>
+                  <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center space-y-4">
+                    <div class="h-16 w-16 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl shadow shadow-emerald-500/15">
+                      <i class="fa-solid fa-gamepad animate-bounce"></i>
+                    </div>
+                    <div>
+                      <h5 class="text-sm font-bold text-slate-200 uppercase tracking-wider">${block.widget_type.replace(/_/g, ' ')}</h5>
+                      <p class="text-xs text-slate-500 mt-1 max-w-sm">This widget is interactive on the Android Client app. Live API preview is active.</p>
+                    </div>
+                    <button class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-lg transition-all">
+                      Mock Interaction
+                    </button>
+                  </div>
+                </div>
+              `;
+            }
+
+            blocksContainer.appendChild(blockDiv);
+          });
+        }
+      } catch (err) {
+        workspace.innerHTML = `<p class="text-center text-red-400 py-10">Failed to load lesson: ${err.message}</p>`;
+      }
+    }
+
+    function checkQuizAnswer(button, correctIdx, chosenIdx, blockIdx) {
+      // Show details block
+      const details = document.getElementById(`quiz-details-${blockIdx}`);
+      if (details) details.classList.remove('hidden');
+
+      const siblings = button.parentElement.children;
+      for (const sib of siblings) {
+        sib.disabled = true;
+        // Reset styles
+        sib.className = 'w-full text-left p-3.5 rounded-xl border border-slate-800 bg-slate-900/40 text-sm font-semibold flex items-center justify-between opacity-50';
+      }
+
+      const icon = button.querySelector('.choice-icon');
+      icon.classList.remove('hidden');
+
+      if (chosenIdx === correctIdx) {
+        button.className = 'w-full text-left p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 text-slate-100 text-sm font-semibold flex items-center justify-between shadow-lg shadow-emerald-500/5';
+        icon.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i>';
+        
+        const expl = document.getElementById(`quiz-expl-${blockIdx}`);
+        if (expl) expl.classList.remove('hidden');
+      } else {
+        button.className = 'w-full text-left p-3.5 rounded-xl border border-red-500/40 bg-red-500/10 text-slate-100 text-sm font-semibold flex items-center justify-between shadow-lg shadow-red-500/5';
+        icon.innerHTML = '<i class="fa-solid fa-xmark text-red-400"></i>';
+        
+        // Also highlight the correct answer
+        siblings[correctIdx].className = 'w-full text-left p-3.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 text-slate-300 text-sm font-semibold flex items-center justify-between';
+      }
+    }
+  </script>
+</body>
+</html>
+`;

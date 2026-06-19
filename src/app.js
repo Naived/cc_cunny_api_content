@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import progressRoutes from './routes/progressRoutes.js';
 import classRoutes from './routes/classRoutes.js';
 import { runMigration } from './migrate.js';
+import { getPreviewHtml } from './views/preview.js';
 
 const app = new Hono();
 
@@ -21,10 +22,17 @@ app.onError((err, c) => {
 });
 
 app.get('/', (c) => {
+  const accept = c.req.header('Accept') || '';
+  if (accept.includes('text/html')) {
+    const url = new URL(c.req.url);
+    const apiUrl = `${url.protocol}//${url.host}`;
+    return c.html(getPreviewHtml(apiUrl));
+  }
   return c.json({
     status: 'API is running on Cloudflare Workers',
     message: 'Welcome to CUNNY Content API',
     routes: [
+      'GET /preview (HTML preview dashboard)',
       'GET /api/learning-materials',
       'GET /api/learning-materials/:id',
       'POST /api/learning-materials',
@@ -53,6 +61,12 @@ app.get('/', (c) => {
       'GET /api/migrate',
     ],
   });
+});
+
+app.get('/preview', (c) => {
+  const url = new URL(c.req.url);
+  const apiUrl = `${url.protocol}//${url.host}`;
+  return c.html(getPreviewHtml(apiUrl));
 });
 
 app.get('/api/migrate', async (c) => {
